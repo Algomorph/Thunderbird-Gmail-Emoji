@@ -32,7 +32,9 @@ reject anything else before opening a compose window.
 The HTML body of a reaction reply SHALL contain:
 - a visible fallback paragraph with the HTML-escaped emoji;
 - exactly one empty `<a>` element whose `href` is
-  `data:text/vnd.google.email-reaction+json;base64,<base64 of the payload>`.
+  `data:text/vnd.google.email-reaction+json;base64,<base64 of the payload>`, and whose
+  `class` is `moz-txt-link-freetext`. Without that class, Thunderbird's HTML-to-text
+  conversion prints the link target (`<cid:…>`) in the text/plain alternative.
 
 The `data:` URL SHALL NOT contain a `filename=` parameter. The body SHALL contain no other
 `data:` URLs and no quoted original message.
@@ -43,6 +45,7 @@ The `data:` URL SHALL NOT contain a `filename=` parameter. The body SHALL contai
 - **AND** it contains exactly one `href="data:text/vnd.google.email-reaction+json;base64,`
 - **AND** base64-decoding that URL's data yields the payload for `👍`
 - **AND** the string `filename=` does not occur
+- **AND** the anchor has `class="moz-txt-link-freetext"`
 
 ### Requirement: Reaction reply settings
 The add-on SHALL open every reaction reply with `compose.beginReply` using:
@@ -70,3 +73,4 @@ The add-on SHALL NOT rely on Thunderbird's default identity selection.
 - **THEN** it has an `In-Reply-To` header with the parent's single Message-ID
 - **AND** it contains a part with `Content-Type: text/vnd.google.email-reaction+json`
   and no `Content-Disposition: attachment`
+- **AND** its text/plain alternative contains the emoji and no `cid:` link

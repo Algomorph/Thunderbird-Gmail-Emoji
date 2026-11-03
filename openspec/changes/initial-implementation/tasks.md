@@ -151,7 +151,8 @@ Needs a person: two real Gmail accounts and a running Thunderbird GUI. The agent
 - [ ] 6.2 With "Review before sending" on, react 👍 to a message that a second **personal**
   Gmail account sent directly to you. Confirm the compose window has the emoji only (no
   quote) and the reply-all recipients. Send it manually.
-- [ ] 6.3 View Source of the sent reaction. Record in `.notes/verification.md`:
+- [x] 6.3 (Done by the agent with `.notes/verification-harness/run.sh`, using the queued
+  send-later message.) View Source of the sent reaction. Record in `.notes/verification.md`:
   - the MIME tree;
   - `In-Reply-To`;
   - the reaction part's headers (Content-Type, absence of `Content-Disposition: attachment`,

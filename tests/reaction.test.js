@@ -43,6 +43,8 @@ test("reaction body carries the fallback and exactly one reaction data URL", () 
   const b64 = body.split(DATA_PREFIX)[1].split('"')[0];
   assert.equal(atob(b64), buildPayload("👍"));
   assert.ok(!body.includes("filename="));
+  // Keeps Thunderbird from printing "<cid:...>" into the text/plain alternative.
+  assert.ok(body.includes('<a class="moz-txt-link-freetext" href="data:'));
   assert.ok(!body.includes("blockquote"), "no quoted original");
 });
 

@@ -56,6 +56,9 @@
 2. **Reaction transport: the `data:` URL inside an empty `<a>`.**
    - The body is `<p>{emoji}</p><a href="data:text/vnd.google.email-reaction+json;base64,…"></a>`.
    - `<a>` rather than `<img>`, so non-Gmail clients show no broken-image icon.
+   - The anchor carries `class="moz-txt-link-freetext"`. Without it, Thunderbird's
+     HTML-to-text conversion prints `<cid:…>` into the text/plain alternative (found by the
+     headless verification harness).
    - The URL must not contain `filename=`, so Thunderbird emits no Content-Disposition
      (`pickFileNameFromUrl`).
    - *Alternative rejected:* API attachments, which are forced to `attachment` and ignored by

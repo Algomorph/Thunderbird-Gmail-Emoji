@@ -55,5 +55,11 @@ export function buildReactionBody(emoji) {
     throw new Error(`Not a single emoji: ${JSON.stringify(emoji)}`);
   }
   const dataUrl = `data:${REACTION_CONTENT_TYPE};base64,${btoa(buildPayload(emoji))}`;
-  return `<head></head><body><p>${escapeHtml(emoji)}</p><a href="${dataUrl}"></a></body>`;
+  // class="moz-txt-link-freetext" stops Thunderbird's HTML-to-plain-text
+  // conversion from printing the link target ("<cid:...>") in the text/plain
+  // alternative. Thunderbird uses the same class for links whose text is the URL.
+  return (
+    `<head></head><body><p>${escapeHtml(emoji)}</p>` +
+    `<a class="moz-txt-link-freetext" href="${dataUrl}"></a></body>`
+  );
 }
