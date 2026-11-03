@@ -87,7 +87,8 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
 
 - [x] 4.1 Implement `src/lib/send-flow.js` `react({tabId, emoji}, api)`. Steps:
   1. normalize the `getDisplayedMessages` array/`MessageList` shape;
-  2. gather headers (`messages.getFull`), identities (`accounts.list`) and the folder's
+  2. gather headers (`messages.getFull(id, {decrypt: false})`; the message's Content-Type is
+     on the root's first child part), identities (`accounts.list`) and the folder's
      account;
   3. check eligibility and validate the emoji;
   4. `compose.beginReply(id, "replyToAll", {...REPLY_DETAILS_BASE, identityId, body})`;

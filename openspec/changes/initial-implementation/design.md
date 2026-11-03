@@ -115,8 +115,12 @@
 8. **Eligibility inputs.**
    - Inputs:
      - the `MessageHeader`: `recipients`, `ccList`, `headerMessageId`;
-     - raw headers from `messages.getFull(id)`: `list-id`, `list-post`, `list-unsubscribe`,
-       `precedence: list|bulk`, `from`, `reply-to` and the top-level `content-type`;
+     - raw headers from `messages.getFull(id, {decrypt: false})`: `list-id`, `list-post`,
+       `list-unsubscribe`, `precedence: list|bulk`, `from`, `reply-to` and the top-level
+       `content-type`. `getFull`'s root part is a synthetic `message/rfc822`, so the
+       message's own `content-type` is read from the root's first child. `decrypt: false`
+       keeps an encrypted original visible as `multipart/encrypted` or
+       `application/pkcs7-mime`, and avoids a passphrase prompt;
      - the user's identities (id, address, owning account) from `accounts.list()` (needs
        `accountsRead`), plus the message's `folder.accountId` to prefer the owning account.
    - The rules follow Gmail's "Unable to send emoji reactions" list
