@@ -1,0 +1,10 @@
+body { margin: 6px; font: menu; }
+#emojis { display: flex; gap: 2px; }
+button {
+  font-size: 22px; line-height: 1; padding: 4px; border: 0; border-radius: 4px;
+  background: none; cursor: pointer;
+}
+button:hover, button:focus-visible { background: rgba(127, 127, 127, 0.2); }
+button:disabled { opacity: 0.4; cursor: default; }
+#status { max-width: 280px; margin: 6px 2px 0; font-size: 12px; color: #b3261e; }
+@media (prefers-color-scheme: dark) { #status { color: #f2b8b5; } }

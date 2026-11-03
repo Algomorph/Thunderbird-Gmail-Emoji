@@ -7,11 +7,30 @@
     "gecko": {
       "id": "thunderbird-gmail-emoji@algomorph",
       "strict_min_version": "128.0",
-      "data_collection_permissions": { "required": ["none"] }
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     }
   },
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "type": "module"
-  }
+  },
+  "message_display_action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "React",
+    "default_label": "React"
+  },
+  "permissions": [
+    "messagesRead",
+    "accountsRead",
+    "compose",
+    "compose.send",
+    "storage",
+    "notifications"
+  ]
 }

@@ -85,32 +85,34 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
 
 ## 4. Send flow, popup and background wiring
 
-- [ ] 4.1 Implement `src/lib/send-flow.js` `react({tabId, emoji}, api)`. Steps:
+- [x] 4.1 Implement `src/lib/send-flow.js` `react({tabId, emoji}, api)`. Steps:
   1. normalize the `getDisplayedMessages` array/`MessageList` shape;
   2. gather headers (`messages.getFull`), identities (`accounts.list`) and the folder's
      account;
   3. check eligibility and validate the emoji;
   4. `compose.beginReply(id, "replyToAll", {...REPLY_DETAILS_BASE, identityId, body})`;
   5. `compose.getComposeDetails`: if `selectedEncryptionTechnology?.encryptBody`, then
-     `tabs.remove` and return an error;
+     `setComposeDetails({isModified:false})` (avoids a "save changes?" prompt), `tabs.remove`,
+     and return an error;
   6. read `reviewBeforeSend` from `storage.local`; if it is off,
      `compose.sendMessage(tab.id, {mode:"sendNow"})`.
 
   Return `{ok:true}` or `{ok:false, stage, reason}`, where `stage` is `"precheck"` or
   `"compose"`. Never throw to the caller.
-- [ ] 4.2 Implement `src/background.js`:
+- [x] 4.2 Implement `src/background.js` as wiring only. The handler itself,
+  `handleRuntimeMessage(message, api)`, lives in `src/lib/send-flow.js`, so it is testable:
   - `runtime.onMessage` handler for `{type:"react"}`, calling `react(..., messenger)`;
   - when a result has `stage: "compose"`, call `notifications.create` with the reason;
   - return every result to the popup.
-- [ ] 4.3 Implement `src/popup/popup.html` and `popup.js`:
+- [x] 4.3 Implement `src/popup/popup.html` and `popup.js`:
   - eight emoji `<button>`s with `aria-label`;
   - send `{type:"react", tabId, emoji}`;
   - show `reason` inline on refusal; close on success.
-- [ ] 4.4 Update `src/manifest.json`:
+- [x] 4.4 Update `src/manifest.json`:
   - `message_display_action` (title "React", popup);
   - permissions `messagesRead`, `accountsRead`, `compose`, `compose.send`, `storage`,
     `notifications`.
-- [ ] 4.5 Add `tests/send-flow.test.js` with a fake `api` object, covering the
+- [x] 4.5 Add `tests/send-flow.test.js` with a fake `api` object, covering the
   `specs/reaction-ui/spec.md` scenarios that don't need a GUI:
   - `beginReply` arguments, including `identityId` for a message addressed to a secondary
     identity (from `specs/reaction-message`);
@@ -122,8 +124,8 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
   - a background-wiring test (fake `messenger`) shows that only compose-stage failures create
     a notification;
   - both `getDisplayedMessages` return shapes.
-- [ ] 4.6 Run the gate; fix the implementation or tests until it passes.
-- [ ] 4.7 Commit `feat(ui): React button, emoji picker and send flow`. Push.
+- [x] 4.6 Run the gate; fix the implementation or tests until it passes.
+- [x] 4.7 Commit `feat(ui): React button, emoji picker and send flow`. Push.
 
 ## 5. Options page and docs
 
