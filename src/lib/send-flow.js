@@ -32,9 +32,16 @@ async function gatherEligibilityInput(tabId, api) {
   const messages = normalizeMessageList(await api.messageDisplay.getDisplayedMessages(tabId));
   if (messages.length !== 1) return { messages };
   const [msg] = messages;
-  const full = await api.messages.getFull(msg.id);
+  // getFull's root part is a synthetic message/rfc822 (also in its headers); the
+  // message's own Content-Type is on the first child. decrypt:false keeps an
+  // encrypted original visible as multipart/encrypted or pkcs7-mime (decrypting
+  // would hide it, or omit the parts when decryption fails) and avoids a
+  // passphrase prompt.
+  const full = await api.messages.getFull(msg.id, { decrypt: false });
   const headers = { ...(full?.headers ?? {}) };
-  if (!headers["content-type"] && full?.contentType) headers["content-type"] = [full.contentType];
+  const top = full?.parts?.[0];
+  const contentType = top?.headers?.["content-type"] ?? (top?.contentType ? [top.contentType] : null);
+  if (contentType) headers["content-type"] = contentType;
   const accounts = await api.accounts.list(false);
   const identities = accounts.flatMap((account) =>
     (account.identities ?? []).map((i) => ({ id: i.id, email: i.email, accountId: account.id })),

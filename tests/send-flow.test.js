@@ -9,6 +9,7 @@ import { buildReactionBody } from "../src/lib/reaction.js";
 function fakeApi({
   displayed = { id: "list1", messages: [{ id: 7, headerMessageId: "m@x", author: "ann@x.com", recipients: ["me@gmail.com"], ccList: [], folder: { accountId: "acc1" } }] },
   headers = { from: ["ann@x.com"] },
+  bodyContentType = "text/plain",
   accounts = [{ id: "acc1", identities: [{ id: "idDefault", email: "main@gmail.com" }, { id: "idMe", email: "me@gmail.com" }] }],
   details = {},
   reviewBeforeSend = false,
@@ -22,7 +23,15 @@ function fakeApi({
   const api = {
     calls,
     messageDisplay: { getDisplayedMessages: rec("getDisplayedMessages", displayed) },
-    messages: { getFull: rec("getFull", { headers }) },
+    // Thunderbird's real shape: a synthetic message/rfc822 root whose first child
+    // carries the message's own Content-Type.
+    messages: {
+      getFull: rec("getFull", {
+        contentType: "message/rfc822",
+        headers: { ...headers, "content-type": ["message/rfc822"] },
+        parts: [{ contentType: bodyContentType.split(";")[0], headers: { "content-type": [bodyContentType] } }],
+      }),
+    },
     accounts: { list: rec("accountsList", accounts) },
     compose: {
       beginReply: rec("beginReply", { id: 99 }),
@@ -142,4 +151,20 @@ test("background handler ignores unrelated messages", async () => {
   const api = fakeApi();
   assert.equal(await handleRuntimeMessage({ type: "other" }, api), undefined);
   assert.equal(api.calls.length, 0);
+});
+
+test("an encrypted original is refused before any compose window opens", async () => {
+  for (const ct of [
+    'multipart/encrypted; protocol="application/pgp-encrypted"; boundary="b"',
+    'application/pkcs7-mime; smime-type=enveloped-data; name="smime.p7m"',
+  ]) {
+    const api = fakeApi({ bodyContentType: ct });
+    assert.deepEqual(await react({ tabId: 1, emoji: "👍" }, api), {
+      ok: false,
+      stage: "precheck",
+      reason: ELIGIBILITY.encrypted,
+    });
+    assert.deepEqual(named(api, "getFull"), [["getFull", 7, { decrypt: false }]]);
+    assert.equal(named(api, "beginReply").length, 0);
+  }
 });
