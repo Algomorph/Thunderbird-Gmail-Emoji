@@ -129,16 +129,16 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
 
 ## 5. Options page and docs
 
-- [ ] 5.1 Implement `src/options/options.html` and `options.js`: a "Review before sending"
+- [x] 5.1 Implement `src/options/options.html` and `options.js`: a "Review before sending"
   checkbox bound to `storage.local.reviewBeforeSend` (default false). Register it in the
   manifest under `options_ui`.
-- [ ] 5.2 Update `README.md`:
+- [x] 5.2 Update `README.md`:
   - Development section: load `src/manifest.json`, `npm test`, `npm run lint`,
     `npm run build`;
   - permissions list and the option;
   - drop the reference to `.notes/prototype/`.
-- [ ] 5.3 Run the gate; fix anything that fails.
-- [ ] 5.4 Commit `feat(options): review-before-sending option; docs`. Push.
+- [x] 5.3 Run the gate; fix anything that fails.
+- [x] 5.4 Commit `feat(options): review-before-sending option; docs`. Push.
 
 ## 6. Human-in-the-loop verification
 

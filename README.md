@@ -24,10 +24,37 @@ threading headers. Details are in [`.notes/REPORT.md`](.notes/REPORT.md).
 - Recipients on Gmail with reactions enabled. Google Workspace domains need an admin to
   turn them on; everyone else gets a short "👍" reply.
 
+## Usage
+Open a message and click **React** in the message header, then pick an emoji. By default the
+reaction is sent straight away; a compose window flashes briefly while it is sent.
+
+**Option** (Add-ons → Gmail Emoji Reactions → Options): *Review before sending* opens the
+reaction in a compose window and lets you send it yourself.
+
+The add-on refuses, with an explanation, where Gmail wouldn't show a reaction: mailing-list
+messages, encrypted messages, a custom Reply-To, more than 20 recipients, or when you're
+not in To/Cc. It also refuses to send a reaction that Thunderbird would encrypt.
+
+**Permissions:**
+- `messagesRead`: read the displayed message's headers;
+- `accountsRead`: find which of your identities it was sent to;
+- `compose` and `compose.send`: create and send the reply;
+- `storage`: the option;
+- `notifications`: report failures after the popup has closed.
+
 ## Development
-1. Thunderbird → Settings → Add-ons → ⚙ → **Debug Add-ons** → **Load Temporary Add-on**.
-2. Pick `manifest.json`. For now, that's the one in `.notes/prototype/`.
-3. Open a message, click **React** in the message header and pick an emoji.
+Requires Node.js ≥ 20.
+
+```sh
+npm ci
+npm test        # unit tests (node:test)
+npm run lint    # web-ext lint: 0 errors expected; Thunderbird-only permission warnings are normal
+npm run build   # dist/gmail-emoji-reactions-<version>.xpi
+```
+
+To run it: Thunderbird → Settings → Add-ons → ⚙ → **Debug Add-ons** → **Load Temporary
+Add-on** → `src/manifest.json`. Pure logic lives in `src/lib/` and never calls Thunderbird
+APIs directly, so it is tested under Node with fakes.
 
 ## Limitations
 - The structure Thunderbird produces (the reaction part nested in `multipart/related`) has
