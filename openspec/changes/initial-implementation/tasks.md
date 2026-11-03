@@ -146,9 +146,9 @@ Needs a person: two real Gmail accounts and a running Thunderbird GUI. The agent
 - load the add-on;
 - inspect sent messages through `messages.getRaw` / View Source where it can reach them.
 
-- [ ] 6.1 Load `dist/*.xpi` (or `src/manifest.json` as a temporary add-on) in Thunderbird ≥ 128
+- [x] 6.1 Load `dist/*.xpi` (or `src/manifest.json` as a temporary add-on) in Thunderbird ≥ 128
   with a Gmail account. Confirm the "React" button and picker appear.
-- [ ] 6.2 With "Review before sending" on, react 👍 to a message that a second **personal**
+- [x] 6.2 With "Review before sending" on, react to a message that a second **personal**
   Gmail account sent directly to you. Confirm the compose window has the emoji only (no
   quote) and the reply-all recipients. Send it manually.
 - [x] 6.3 (Done by the agent with `.notes/verification-harness/run.sh`, using the queued
@@ -158,21 +158,29 @@ Needs a person: two real Gmail accounts and a running Thunderbird GUI. The agent
   - the reaction part's headers (Content-Type, absence of `Content-Disposition: attachment`,
     CTE).
   - Compare against `specs/reaction-message` "Sent reaction structure".
-- [ ] 6.4 **Critical check.** In the second account's Gmail web UI, confirm 👍 shows as a
+- [x] 6.4 **Critical check.** In the second account's Gmail web UI, confirm 👍 shows as a
   reaction chip under the original, not as a separate message. If it shows as a separate
   message, stop. Record the failure and open a plan-B follow-up change (see `design.md`
   Risks).
-- [ ] 6.5 Turn "Review before sending" off and react ❤️. Confirm it is sent without
-  interaction and appears as a chip.
-- [ ] 6.6 Confirm refusals show in the popup for:
-  - a mailing-list message;
-  - a message where you are only in BCC;
-  - a multi-message selection.
-- [ ] 6.7 If OpenPGP or S/MIME is configured, confirm the encryption guard closes the compose
-  window and notifies. Record whether a signed-only reaction renders as a chip.
-- [ ] 6.8 Restart Thunderbird and confirm the option persists. If you have two identities,
+- [x] 6.5 Turn "Review before sending" off and react. Confirm it is sent without interaction
+  and appears as a chip.
+- [x] 6.6 Confirm refusals for:
+  - a message where you are only in BCC (popup shows the reason);
+  - a multi-message selection (Thunderbird hides the React button, so the popup cannot open).
+
+  The mailing-list refusal is deferred out of this change (no list available to test with);
+  it remains unit-tested.
+- [x] 6.7 Add the add-on icon: scale `graphics/logo.png` to `src/icons/icon-{16..128}.png`,
+  declare them in the manifest (`icons`, `message_display_action.default_icon`), and add a
+  smoke test that every declared icon exists. Run the gate. Commit
+  `feat(ui): add the add-on icon`. Push.
+- [x] 6.8 Restart Thunderbird and confirm the option persists. If you have two identities,
   react to a message addressed to the non-default one and confirm the From address.
-- [ ] 6.9 Fix any defects found in this group and re-run the gate. Then make **one** commit,
+- [x] 6.9 Fix any defects found in this group and re-run the gate. Then make **one** commit,
   `test: record Gmail verification results`, containing `.notes/verification.md` and any
   fixes. Push. If a fix is too large for this group, record it in `.notes/verification.md`
   as a follow-up change instead.
+
+Deferred out of this change (no OpenPGP/S-MIME setup or mailing list to test with): the
+encryption guard and signed-only rendering in a real Thunderbird, and the mailing-list refusal
+in the popup. All three remain covered by unit tests; see `.notes/verification.md`.

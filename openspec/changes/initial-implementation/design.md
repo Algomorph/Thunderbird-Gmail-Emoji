@@ -143,7 +143,8 @@
 ## Risks / Trade-offs
 
 - **[Gmail rejects the reaction part nested in `multipart/related`]** → The human
-  verification group tests this first.
+  verification group tests this first. **Resolved 2026-11-03:** Gmail web showed both an
+  auto-sent and a reviewed reaction as chips (`.notes/verification.md`).
   - On failure, stop and open a plan-B change (Experiment API that builds Google's recommended
     `multipart/alternative[plain, reaction, html]`).
   - The pure-logic modules stay reusable.
@@ -154,8 +155,9 @@
     it with `messages.getRaw`. It is deferred because it needs a running Thunderbird profile.
 - **[A compose window flashes on screen before auto-send]** → Accepted for v1. There is no
   API to compose headlessly.
-- **[Signed (not encrypted) reactions wrap the tree in `multipart/signed`]** → Covered in
-  human verification. If Gmail rejects them, extend the guard to signing.
+- **[Signed (not encrypted) reactions wrap the tree in `multipart/signed`]** → Not verified
+  in this change: the tester has no OpenPGP/S-MIME setup, so the check is deferred to a
+  follow-up. If Gmail rejects them, extend the guard to signing.
 - **[Reaction sent from the wrong identity]** → `identityId` is passed explicitly from the
   eligibility match. A unit test covers the multi-identity case.
 - **[`messageDisplay.getDisplayedMessages` returns an array in older versions and a

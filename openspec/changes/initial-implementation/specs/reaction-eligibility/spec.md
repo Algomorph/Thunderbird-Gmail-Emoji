@@ -27,7 +27,9 @@ reply.
 - **THEN** the reason is the mailing-list reason
 
 ### Requirement: Exactly one displayed message
-The add-on SHALL refuse unless exactly one message is displayed.
+The add-on SHALL refuse unless exactly one message is displayed. (In practice Thunderbird hides
+the message-header action for a multi-message selection, so this check is a defensive
+fallback.)
 
 #### Scenario: Multiple messages selected
 - **WHEN** the message pane shows a multi-message summary

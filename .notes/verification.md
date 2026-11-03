@@ -41,16 +41,24 @@ Content-Type: multipart/alternative
 - **Headless runs are not a GUI check:** they did not exercise the popup or the
   message-header button.
 
-## Human-run (pending)
+## Human-run (2026-11-03, Thunderbird GUI, two personal Gmail accounts)
 
-These need a running Thunderbird GUI and two real **personal** Gmail accounts:
+The add-on was installed from `dist/gmail-emoji-reactions-0.1.0.xpi`.
 
 | Task | What | Result |
 |---|---|---|
-| 6.1 | React button and picker appear in the message header | pending |
-| 6.2 | Review mode: compose shows only the emoji, reply-all recipients | pending |
-| 6.4 | **Gmail shows 👍 as a reaction chip** (the nested-`multipart/related` risk) | pending |
-| 6.5 | Auto-send ❤️, shows as a chip | pending |
-| 6.6 | Refusals in the popup: list message, BCC-only, multi-select | pending |
-| 6.7 | Encryption guard; whether a signed-only reaction renders | pending (only if PGP/S-MIME configured) |
-| 6.8 | Option persists across restart; From = non-default identity | pending |
+| 6.1 | React button and picker appear in the message header | pass |
+| 6.2 | Review mode: compose shows only the emoji, reply-all recipients; sent manually (❤️) | pass |
+| 6.4 | **Gmail shows 👍 as a reaction chip** (the nested-`multipart/related` risk) | **pass**: chip under the original in Gmail web |
+| 6.5 | Auto-send (👍), shows as a chip | pass |
+| 6.6 | Refusal for a BCC-only message | pass: reason shown in the popup |
+| 6.6 | Multi-message selection | pass: Thunderbird hides the React button, so no reaction can be started |
+| 6.6 | Refusal for a mailing-list message | deferred: no list to test with (unit-tested) |
+| 6.7 (old) | Encryption guard; whether a signed-only reaction renders | deferred: no OpenPGP/S-MIME configured (guard unit-tested) |
+| 6.8 | Option persists across restart; From = the matched identity | pass |
+
+Conclusion: Gmail accepts the reaction part nested in `multipart/related`, so plan B (an
+Experiment API or the Gmail API) is not needed.
+
+Follow-ups, if wanted: check the encryption guard and signed-only rendering with an
+OpenPGP/S-MIME setup, and the mailing-list refusal with a real list.
