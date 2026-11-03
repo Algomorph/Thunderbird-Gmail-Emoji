@@ -46,20 +46,21 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
 
 ## 2. Reaction message (leaf logic)
 
-- [ ] 2.1 Implement `src/lib/reaction.js`:
-  - `isSingleEmoji(s)` using `/^\p{RGI_Emoji}$/v`;
+- [x] 2.1 Implement `src/lib/reaction.js`:
+  - `isSingleEmoji(s)` using `^\p{RGI_Emoji}$` with the `v` flag (built with `new RegExp`,
+    because web-ext lint's parser rejects `v` regex literals);
   - `buildPayload(emoji)`, ASCII-escaped JSON;
   - `buildReactionBody(emoji)`, which throws on invalid emoji, HTML-escapes the fallback and
     emits one empty `<a href="data:text/vnd.google.email-reaction+json;base64,…">`;
   - `REPLY_DETAILS_BASE = {isPlainText:false, deliveryFormat:"both"}`.
-- [ ] 2.2 Add `tests/reaction.test.js` covering every scenario in
+- [x] 2.2 Add `tests/reaction.test.js` covering every scenario in
   `specs/reaction-message/spec.md` except the human-verified ones:
   - the exact payload for 👍;
   - the ❤️ round-trip and ASCII-only check;
   - valid and invalid emoji lists;
   - body contents, base64 decode and the absence of `filename=`.
-- [ ] 2.3 Run the gate; fix the implementation or tests until it passes.
-- [ ] 2.4 Commit `feat(reaction): build Gmail reaction payload and body`. Push.
+- [x] 2.3 Run the gate; fix the implementation or tests until it passes.
+- [x] 2.4 Commit `feat(reaction): build Gmail reaction payload and body`. Push.
 
 ## 3. Eligibility rules (leaf logic)
 
