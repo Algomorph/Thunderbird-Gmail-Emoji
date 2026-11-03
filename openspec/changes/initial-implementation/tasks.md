@@ -64,14 +64,14 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
 
 ## 3. Eligibility rules (leaf logic)
 
-- [ ] 3.1 Implement `src/lib/eligibility.js`:
+- [x] 3.1 Implement `src/lib/eligibility.js`:
   - `extractAddress(str)`: addr-spec from `"Name <addr>"`, lower-cased;
   - `checkEligibility({messages, headers, identities: [{id, email, accountId}], folderAccountId})`, applying the rules in spec
     order: single message, Message-ID, list headers or precedence, encrypted original
     (`multipart/encrypted`, `application/pkcs7-mime`), Reply-To differing from From, ≤ 20
     distinct To+CC, user in To/CC. Returns `{ok:true, identityId}` (prefer the identity of the
     message folder's account) or `{ok:false, reason}`.
-- [ ] 3.2 Add `tests/eligibility.test.js` covering every scenario in
+- [x] 3.2 Add `tests/eligibility.test.js` covering every scenario in
   `specs/reaction-eligibility/spec.md`, including:
   - the 20/21 boundary;
   - case and display-name dedup;
@@ -80,8 +80,8 @@ Trunk is `main`; all commits go to the feature branch `feat/initial-implementati
   - Reply-To differing from From vs. equal to it;
   - identity choice when two accounts match;
   - rule-order precedence when several rules fail.
-- [ ] 3.3 Run the gate; fix the implementation or tests until it passes.
-- [ ] 3.4 Commit `feat(eligibility): enforce Gmail reaction eligibility rules`. Push.
+- [x] 3.3 Run the gate; fix the implementation or tests until it passes.
+- [x] 3.4 Commit `feat(eligibility): enforce Gmail reaction eligibility rules`. Push.
 
 ## 4. Send flow, popup and background wiring
 
