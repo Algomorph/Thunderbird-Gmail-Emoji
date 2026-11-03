@@ -57,8 +57,9 @@ Add-on** → `src/manifest.json`. Pure logic lives in `src/lib/` and never calls
 APIs directly, so it is tested under Node with fakes.
 
 ## Limitations
-- The structure Thunderbird produces (the reaction part nested in `multipart/related`) has
-  not yet been confirmed to work with Gmail.
+- The reaction part ends up nested in `multipart/related`, which relies on undocumented
+  Thunderbird behaviour. Gmail web accepted it (verified with Thunderbird 157, November 2026);
+  `.notes/verification-harness/run.sh` re-checks the MIME after a Thunderbird update.
 - Following Gmail's rules, the add-on doesn't react to mailing-list messages or to messages
   with more than 20 recipients.
 - Reactions *received* in Thunderbird still show up as normal emails.
