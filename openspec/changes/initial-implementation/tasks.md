@@ -1,0 +1,174 @@
+Gate for every code group: `npm test` passes, `npm run lint` reports 0 errors (warnings on
+Thunderbird-only permissions are expected), and `npm run build` produces `dist/*.xpi`.
+Trunk is `main`; all commits go to the feature branch `feat/initial-implementation`.
+
+## 1. Scaffolding and tooling
+
+- [x] 1.1 Create and push the feature branch `feat/initial-implementation` from `main`.
+- [x] 1.2 Add `.gitignore` covering `node_modules/` and `dist/`.
+- [x] 1.3 Add `package.json`:
+  - `"type": "module"` and `engines.node >= 20`;
+  - `web-ext` as the only devDependency;
+  - scripts `test` (`node --test tests/*.test.js`), `lint` (`web-ext lint -s src`) and `build`
+    (`web-ext build -s src -a dist --overwrite-dest`, renamed to `.xpi`).
+  - Commit `package-lock.json`.
+- [x] 1.4 Add the `src/manifest.json` skeleton:
+  - MV3, gecko id, `strict_min_version` 128.0;
+  - background `{scripts: ["background.js"], type: "module"}` with an empty `background.js`;
+  - `data_collection_permissions` declaring no collection.
+- [x] 1.5 Add `tests/smoke.test.js` asserting that `src/manifest.json` parses, is MV3 and has
+  `strict_min_version` ≥ 128, so `npm test` has a real target.
+- [x] 1.6 Fill in `.dev-ext/profile.md`:
+  - Identity summary;
+  - Forge (github, `gh`);
+  - Branches (`main` trunk, `feat/<desc>`);
+  - Commit format (Conventional Commits);
+  - Build and Test sections with the npm commands;
+  - Onboarding: Node ≥ 20, Thunderbird ≥ 128.
+  - Remove the template placeholders. Delete sections that don't apply (Tracker: none).
+- [x] 1.7 Fill in `openspec/project.md` from its template:
+  - What is canonical (this file plus the profile; `.notes/` for research);
+  - Domain context (the Gmail reaction format, and the data-URL dependency on Thunderbird
+    internals);
+  - Layout (`src/`, `src/lib/`, `tests/`);
+  - Code style (plain ES modules, no bundler, no runtime dependencies);
+  - Architecture rule: `src/lib/` never references `messenger.*`;
+  - Testing strategy (`node:test` units with fakes, plus the human Gmail check);
+  - Git workflow (trunk `main`, `feat/<desc>`, Conventional Commits).
+  - Delete the sections that don't apply (Heavy I/O: none; Tracker: none).
+- [x] 1.8 Check the three delta specs under this change's `specs/` against `proposal.md`
+  Capabilities and `design.md`. Each capability has one spec, each requirement has a scenario,
+  and no requirement contradicts the design. Fix any mismatch in this group.
+- [x] 1.9 Run the gate (`npm ci && npm test && npm run lint && npm run build`); fix anything
+  that fails.
+- [x] 1.10 Commit `chore: scaffold add-on, tooling and repo profile`, including this OpenSpec
+  change directory. Push the feature branch.
+
+## 2. Reaction message (leaf logic)
+
+- [ ] 2.1 Implement `src/lib/reaction.js`:
+  - `isSingleEmoji(s)` using `/^\p{RGI_Emoji}$/v`;
+  - `buildPayload(emoji)`, ASCII-escaped JSON;
+  - `buildReactionBody(emoji)`, which throws on invalid emoji, HTML-escapes the fallback and
+    emits one empty `<a href="data:text/vnd.google.email-reaction+json;base64,…">`;
+  - `REPLY_DETAILS_BASE = {isPlainText:false, deliveryFormat:"both"}`.
+- [ ] 2.2 Add `tests/reaction.test.js` covering every scenario in
+  `specs/reaction-message/spec.md` except the human-verified ones:
+  - the exact payload for 👍;
+  - the ❤️ round-trip and ASCII-only check;
+  - valid and invalid emoji lists;
+  - body contents, base64 decode and the absence of `filename=`.
+- [ ] 2.3 Run the gate; fix the implementation or tests until it passes.
+- [ ] 2.4 Commit `feat(reaction): build Gmail reaction payload and body`. Push.
+
+## 3. Eligibility rules (leaf logic)
+
+- [ ] 3.1 Implement `src/lib/eligibility.js`:
+  - `extractAddress(str)`: addr-spec from `"Name <addr>"`, lower-cased;
+  - `checkEligibility({messages, headers, identities: [{id, email, accountId}], folderAccountId})`, applying the rules in spec
+    order: single message, Message-ID, list headers or precedence, encrypted original
+    (`multipart/encrypted`, `application/pkcs7-mime`), Reply-To differing from From, ≤ 20
+    distinct To+CC, user in To/CC. Returns `{ok:true, identityId}` (prefer the identity of the
+    message folder's account) or `{ok:false, reason}`.
+- [ ] 3.2 Add `tests/eligibility.test.js` covering every scenario in
+  `specs/reaction-eligibility/spec.md`, including:
+  - the 20/21 boundary;
+  - case and display-name dedup;
+  - `Precedence: Bulk`;
+  - encrypted original;
+  - Reply-To differing from From vs. equal to it;
+  - identity choice when two accounts match;
+  - rule-order precedence when several rules fail.
+- [ ] 3.3 Run the gate; fix the implementation or tests until it passes.
+- [ ] 3.4 Commit `feat(eligibility): enforce Gmail reaction eligibility rules`. Push.
+
+## 4. Send flow, popup and background wiring
+
+- [ ] 4.1 Implement `src/lib/send-flow.js` `react({tabId, emoji}, api)`. Steps:
+  1. normalize the `getDisplayedMessages` array/`MessageList` shape;
+  2. gather headers (`messages.getFull`), identities (`accounts.list`) and the folder's
+     account;
+  3. check eligibility and validate the emoji;
+  4. `compose.beginReply(id, "replyToAll", {...REPLY_DETAILS_BASE, identityId, body})`;
+  5. `compose.getComposeDetails`: if `selectedEncryptionTechnology?.encryptBody`, then
+     `tabs.remove` and return an error;
+  6. read `reviewBeforeSend` from `storage.local`; if it is off,
+     `compose.sendMessage(tab.id, {mode:"sendNow"})`.
+
+  Return `{ok:true}` or `{ok:false, stage, reason}`, where `stage` is `"precheck"` or
+  `"compose"`. Never throw to the caller.
+- [ ] 4.2 Implement `src/background.js`:
+  - `runtime.onMessage` handler for `{type:"react"}`, calling `react(..., messenger)`;
+  - when a result has `stage: "compose"`, call `notifications.create` with the reason;
+  - return every result to the popup.
+- [ ] 4.3 Implement `src/popup/popup.html` and `popup.js`:
+  - eight emoji `<button>`s with `aria-label`;
+  - send `{type:"react", tabId, emoji}`;
+  - show `reason` inline on refusal; close on success.
+- [ ] 4.4 Update `src/manifest.json`:
+  - `message_display_action` (title "React", popup);
+  - permissions `messagesRead`, `accountsRead`, `compose`, `compose.send`, `storage`,
+    `notifications`.
+- [ ] 4.5 Add `tests/send-flow.test.js` with a fake `api` object, covering the
+  `specs/reaction-ui/spec.md` scenarios that don't need a GUI:
+  - `beginReply` arguments, including `identityId` for a message addressed to a secondary
+    identity (from `specs/reaction-message`);
+  - auto-send vs. review (no `sendMessage` call);
+  - an ineligible message makes no `beginReply` call;
+  - encryption guard (`tabs.remove` called, no send);
+  - `sendMessage` rejection returns `{ok:false, stage:"compose"}` with the error text;
+  - an eligibility refusal returns `stage:"precheck"`;
+  - a background-wiring test (fake `messenger`) shows that only compose-stage failures create
+    a notification;
+  - both `getDisplayedMessages` return shapes.
+- [ ] 4.6 Run the gate; fix the implementation or tests until it passes.
+- [ ] 4.7 Commit `feat(ui): React button, emoji picker and send flow`. Push.
+
+## 5. Options page and docs
+
+- [ ] 5.1 Implement `src/options/options.html` and `options.js`: a "Review before sending"
+  checkbox bound to `storage.local.reviewBeforeSend` (default false). Register it in the
+  manifest under `options_ui`.
+- [ ] 5.2 Update `README.md`:
+  - Development section: load `src/manifest.json`, `npm test`, `npm run lint`,
+    `npm run build`;
+  - permissions list and the option;
+  - drop the reference to `.notes/prototype/`.
+- [ ] 5.3 Run the gate; fix anything that fails.
+- [ ] 5.4 Commit `feat(options): review-before-sending option; docs`. Push.
+
+## 6. Human-in-the-loop verification
+
+Needs a person: two real Gmail accounts and a running Thunderbird GUI. The agent should still:
+- load the add-on;
+- inspect sent messages through `messages.getRaw` / View Source where it can reach them.
+
+- [ ] 6.1 Load `dist/*.xpi` (or `src/manifest.json` as a temporary add-on) in Thunderbird ≥ 128
+  with a Gmail account. Confirm the "React" button and picker appear.
+- [ ] 6.2 With "Review before sending" on, react 👍 to a message that a second **personal**
+  Gmail account sent directly to you. Confirm the compose window has the emoji only (no
+  quote) and the reply-all recipients. Send it manually.
+- [ ] 6.3 View Source of the sent reaction. Record in `.notes/verification.md`:
+  - the MIME tree;
+  - `In-Reply-To`;
+  - the reaction part's headers (Content-Type, absence of `Content-Disposition: attachment`,
+    CTE).
+  - Compare against `specs/reaction-message` "Sent reaction structure".
+- [ ] 6.4 **Critical check.** In the second account's Gmail web UI, confirm 👍 shows as a
+  reaction chip under the original, not as a separate message. If it shows as a separate
+  message, stop. Record the failure and open a plan-B follow-up change (see `design.md`
+  Risks).
+- [ ] 6.5 Turn "Review before sending" off and react ❤️. Confirm it is sent without
+  interaction and appears as a chip.
+- [ ] 6.6 Confirm refusals show in the popup for:
+  - a mailing-list message;
+  - a message where you are only in BCC;
+  - a multi-message selection.
+- [ ] 6.7 If OpenPGP or S/MIME is configured, confirm the encryption guard closes the compose
+  window and notifies. Record whether a signed-only reaction renders as a chip.
+- [ ] 6.8 Restart Thunderbird and confirm the option persists. If you have two identities,
+  react to a message addressed to the non-default one and confirm the From address.
+- [ ] 6.9 Fix any defects found in this group and re-run the gate. Then make **one** commit,
+  `test: record Gmail verification results`, containing `.notes/verification.md` and any
+  fixes. Push. If a fix is too large for this group, record it in `.notes/verification.md`
+  as a follow-up change instead.

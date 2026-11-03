@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Reactions (prototype)",
+  "version": "0.1",
+  "description": "Send Gmail-native emoji reactions from Thunderbird.",
+  "browser_specific_settings": {
+    "gecko": { "id": "gmail-reactions-proto@local", "strict_min_version": "128.0" }
+  },
+  "background": { "scripts": ["background.js"] },
+  "message_display_action": {
+    "default_popup": "popup.html",
+    "default_title": "React"
+  },
+  "permissions": ["messagesRead", "compose", "compose.send"]
+}
