@@ -3,6 +3,14 @@
   "name": "Gmail Emoji Reactions",
   "version": "0.1.0",
   "description": "Send Gmail-native emoji reactions from Thunderbird.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "64": "icons/icon-64.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
   "browser_specific_settings": {
     "gecko": {
       "id": "thunderbird-gmail-emoji@algomorph",
@@ -23,7 +31,11 @@
   "message_display_action": {
     "default_popup": "popup/popup.html",
     "default_title": "React",
-    "default_label": "React"
+    "default_label": "React",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "permissions": [
     "messagesRead",
