@@ -11,9 +11,13 @@ here="$(cd "$(dirname "$0")" && pwd)"
 repo="$(cd "$here/../.." && pwd)"
 tb="${1:-thunderbird}"
 # The Thunderbird snap can only read its own data dir (and non-hidden home dirs).
-work="${HOME}/snap/thunderbird/common/gmail-emoji-verify"
-[ -d "${HOME}/snap/thunderbird" ] || work="$(mktemp -d)"
-rm -rf "$work" && mkdir -p "$work/harness/lib" "$work/profile/extensions"
+if [ -d "${HOME}/snap/thunderbird/common" ]; then
+  work="$(mktemp -d "${HOME}/snap/thunderbird/common/gmail-emoji-verify.XXXXXX")"
+else
+  work="$(mktemp -d)"
+fi
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$work/harness/lib" "$work/profile/extensions"
 cp "$here/manifest.json" "$here/background.js" "$work/harness/"
 cp "$repo"/src/lib/*.js "$work/harness/lib/"
 cp "$here/user.js" "$work/profile/user.js"
