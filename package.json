@@ -1,0 +1,19 @@
+{
+  "name": "thunderbird-gmail-emoji",
+  "version": "0.1.0",
+  "description": "Thunderbird add-on that sends Gmail-native emoji reactions.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "lint": "web-ext lint -s src",
+    "build": "web-ext build -s src -a dist --overwrite-dest -n \"gmail-emoji-reactions-{version}.xpi\""
+  },
+  "devDependencies": {
+    "web-ext": "^8.10.0"
+  }
+}
