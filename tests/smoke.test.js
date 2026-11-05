@@ -16,6 +16,7 @@ test("every icon the manifest names exists in src/", () => {
   const paths = [
     ...Object.values(manifest.icons ?? {}),
     ...Object.values(manifest.message_display_action?.default_icon ?? {}),
+    ...(manifest.message_display_action?.theme_icons ?? []).flatMap((i) => [i.dark, i.light]),
   ];
   assert.ok(paths.length > 0, "manifest declares no icons");
   for (const p of paths) {

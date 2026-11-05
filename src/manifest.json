@@ -33,9 +33,21 @@
     "default_title": "React",
     "default_label": "React",
     "default_icon": {
-      "16": "icons/icon-16.png",
-      "32": "icons/icon-32.png"
-    }
+      "16": "icons/react-16.png",
+      "32": "icons/react-32.png"
+    },
+    "theme_icons": [
+      {
+        "dark": "icons/react-16.png",
+        "light": "icons/react-on-dark-16.png",
+        "size": 16
+      },
+      {
+        "dark": "icons/react-32.png",
+        "light": "icons/react-on-dark-32.png",
+        "size": 32
+      }
+    ]
   },
   "permissions": [
     "messagesRead",
